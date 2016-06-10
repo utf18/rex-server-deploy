@@ -30,15 +30,20 @@ What you have to do in order to Use this:
   - you have to check whether the provider supports docker or not!
   - you have to install a Distribution of Linux on your own (currently only Debian based Systems are supported, I use Debian 8 minimal)
   - you have to copy your SSH Public Key to the Server (authorized_keys of the User root)
-- install rex in at least version 1.3
-- if you want SSL certificates get yourself a domain and set the A-record to the IP of your server
+- install rex in at least version 1.3 on your local machine or the machine where you will trigger the deployment from
+- get yourself a domain and set the A-record to the IP of your server
 
 ## **Get it Started**
 
 1. clone this repo
-2. provide your configs in the <hostname>.yml file in the cmdb (see example file under the folder "cmdb") and add your serverName in the servers.ini file
+2. provide your configs:
+    - grab your hostname from your remote machine (just type in `hostname` at the shell)
+    - duplicate the example hostname.yml file under cmdb and name it <your_hostname_from_the_remote_machine>.yml
+    - change the values inside the hostname.yml file according to your needs ### **change the passwords** ###
+    - add your remote server in the servers.ini file (see example entries within)
+3. verify your rex installation within the cloned repo by typing `rex -T` you will get a list of tasknames and a list of servers to connect to.
 3. optional: verify everything is working as expected by starting rex with the parameter uptime. `rex uptime`
-it will connect to the destination server and returns the uptime of your server.
+it will connect to the destination server and returns the uptime of your server and if you get your username as a return then your hostname.yml file is correctly named.
 4. start rex with the parameter "rollout" `rex rollout` (it will install and configure your server the way you specified it)
 5. create lets's encrypt certificates: you have to do it manually since certbot is not working with the installation. grab it from here:
 https://github.com/certbot/certbot and follow the orders:
@@ -51,10 +56,10 @@ https://github.com/certbot/certbot and follow the orders:
 
 for the overall *big picture* see rexify.org and see how it is working under the hood.
 
-how the whole Setup works:
-applications such as owncloud are provided as docker containers and expose their ports locally on the host.
-the ufw blocks all incoming traffic execpt 22 for SSH and 80,443 for the Apache Server.
-The Apache acts as a reverse proxy for the docker containers behind and does the SSL termination and hands out the let's encrypt certificates.
+**how the whole Setup works:**
+  applications such as owncloud are provided as docker containers and expose their ports locally on the host.
+  the ufw blocks all incoming traffic execpt 22 for SSH and 80,443 for the Apache Server.
+  The Apache acts as a reverse proxy for the docker containers behind and does the SSL termination and hands out the let's encrypt certificates.
 
 nothing too fancy here ;)
 
