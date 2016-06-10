@@ -38,7 +38,7 @@ What you have to do in order to Use this:
 1. clone this repo
 2. provide your configs:
     - grab your hostname from your remote machine (just type in `hostname` at the shell)
-    - duplicate the example hostname.yml file under cmdb and name it <your_hostname_from_the_remote_machine>.yml
+    - duplicate the example hostname.yml file under cmdb and name it your_hostname_from_the_remote_machine.yml
     - change the values inside the hostname.yml file according to your needs ### **change the passwords** ###
     - add your remote server in the servers.ini file (see example entries within)
 3. verify your rex installation within the cloned repo by typing `rex -T` you will get a list of tasknames and a list of servers to connect to.
