@@ -1,0 +1,54 @@
+# install all the needed packages.
+task "install", group => "rootserver", sub {
+
+  # load variables from cmdb
+  my $system_config = get cmdb "system";
+
+  my $user          = $system_config->{user};
+  my $pw            = $system_config->{pw};
+  my $sshPubKey     = $system_config->{sshPubKey};
+  my $baseDir       = $system_config->{baseDir};
+
+
+  # add jessie backports repo because the certbot is only available in those
+  file "/etc/apt/sources.list.d/backports.list",
+    content => template("files/backports.list");
+
+  update_package_db;
+
+  run "apt-get install -y python-certbot-apache -t jessie-backports";
+
+  # install packages defined in default.yml add them to the hostname.yml file if you want host specific packages
+  Rex::Logger::info("system packages will be installed");
+  for $package (values $system_config->{packages}) {
+    pkg $package,
+    ensure  => "present",
+  }
+
+
+  # install Docker from docker.com through their script
+  Rex::Logger::info("docker will be installed");
+  run "curl -fsSL https://get.docker.com/ | sh ";
+
+
+  # create the User you want to use for daily business/ granted sudo permissions
+  Rex::Logger::info("now we create the User: $user");
+  account "$user",
+    ensure         => "present",
+    home           => "/home/$user",
+    comment        => "$user User Account",
+    groups         => [ 'users', 'docker', 'sudo' ],
+    password       => "$pw",
+    create_home    => TRUE,
+    ssh_key        => $sshPubKey;
+
+  # create mount directory for docker data
+  Rex::Logger::info("now we create the mount point for the container files");
+  file "$baseDir",
+     ensure => "directory",
+     owner  => $user,
+     group  => "docker",
+     mode   => 1775;
+
+
+};

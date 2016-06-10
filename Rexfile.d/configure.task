@@ -1,0 +1,38 @@
+task "configure", group => "rootserver", sub {
+
+  # load variables from cmdb
+  my $system_config = get cmdb "system";
+
+  my $user          = $system_config->{user};
+  my $pw            = $system_config->{pw};
+  my $sshPubKey     = $system_config->{sshPubKey};
+  my $baseDir       = $system_config->{baseDir};
+
+  # configure ufw to deny all incoming connections by default and allow ssh incoming connections
+  Rex::Logger::info("now we configure ufw");
+  run "ufw default deny incoming";
+  run "ufw default allow outgoing";
+  run "ufw allow 22/tcp";
+  run "ufw allow 80/tcp";
+  run "ufw allow 443/tcp";
+  run "ufw --force enable";
+
+  # enable modproxy apache modules
+  Rex::Logger::info("now we enable the additional apache modules");
+  run "a2enmod proxy";
+  run "a2enmod rewrite";
+  run "a2enmod proxy_html";
+  run "a2enmod proxy_http";
+  run "a2enmod ssl";
+
+  # disable password auth in ssh config
+  Rex::Logger::info("Hardening of sshd config -> forbid password authentication");
+  append_if_no_such_line "/etc/ssh/sshd_config", "PasswordAuthentication no";
+
+  # restart ssh services
+  Rex::Logger::info("restart the ssh service in order to reload sshd config");
+  service ssh => "restart";
+
+
+
+};

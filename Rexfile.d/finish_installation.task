@@ -1,0 +1,20 @@
+# finish installation| do some neccesary things e.g cron
+task "finish_installation", group => "rootserver", sub {
+
+  # load variables from cmdb
+  my $system_config = get cmdb "system";
+  my $user          = $system_config->{user};
+
+
+  Rex::Logger::info("create the cron entry for letsencrypt");
+  # create cron entry for letsencrypt renewal daily
+  cron_entry "letsencrypt-renewal",
+    ensure    => "present",
+    command   => "certbot renewal",
+    minute    => "1",
+    hour      => "23",
+    user      => "$user";
+
+
+
+};

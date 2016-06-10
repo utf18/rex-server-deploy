@@ -1,0 +1,4 @@
+task "update_system", group => "rootserver", sub {
+  update_package_db;
+  update_system;
+};

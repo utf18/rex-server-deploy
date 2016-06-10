@@ -1,0 +1,7 @@
+task "install_docker_watchtower", group => "rootserver", sub {
+
+  Rex::Logger::info("now we start dockerized watchtower");
+  #now we run watchtower
+  run "docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock centurylink/watchtower";
+
+};

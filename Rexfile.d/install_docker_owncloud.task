@@ -1,0 +1,54 @@
+task "install_docker_owncloud", group => "rootserver", sub {
+
+# load variables from cmdb
+  my $system_config     = get cmdb "system";
+  my $owncloud_config   = get cmdb "owncloud";
+  my $domain_config      = get cmdb "domain";
+
+  my $baseDir           = $system_config->{baseDir};
+  my $user              = $system_config->{user};
+  my $dataDir           = $system_config->{dataDir};
+
+  my $hostData          = $owncloud_config->{hostData};
+  my $contData          = $owncloud_config->{contData};
+  my $localPort         = $owncloud_config->{localPort};
+  my $contPort          = $owncloud_config->{contPort};
+
+  my $certDomain        = $domain_config->{certDomain};
+  my $owncloud          = $domain_config->{owncloud};
+
+  Rex::Logger::info("now we install and configure dockerized owncloud");
+
+  #now we create the shared directory for the owncloud Data on the Host
+  file "$baseDir/$hostData",
+     ensure => "directory",
+     owner  => "$user",
+     group  => "docker",
+     mode   => 1777;
+
+  #now we create the neccesary subfolder for the apache reverse config
+  #file "/var/www/html/$owncloud",
+  #  ensure => "directory",
+  #  owner  => "www-data",
+  #  group  => "www-data",
+
+  #now we create the neccesary subfolder for the apache reverse config
+  file "/var/www/$owncloud",
+    ensure => "directory",
+    owner  => "www-data",
+    group  => "www-data",
+
+
+  Rex::Logger::info("now we start dockerized owncloud");
+  #now we run owncloud with exposed ports on localhost 9090 and with the configured shared directories
+  run "docker run --restart=always -d --name owncloud -p 127.0.0.1:$localPort:$contPort -v $baseDir/$hostData:$contData owncloud";
+
+  Rex::Logger::info("now we place the owncloud conf file in the apache dir and after that enable it");
+  file "/etc/apache2/sites-available/owncloud.conf",
+    content => template("files/owncloud.conf.tpl", "localPort" => $localPort, "certDomain" => $certDomain, "owncloud" => $owncloud);
+
+  run "a2ensite owncloud.conf";
+
+
+
+};

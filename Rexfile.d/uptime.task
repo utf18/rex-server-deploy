@@ -1,0 +1,14 @@
+task "uptime", group => "rootserver", sub {
+
+  my $system_config = get cmdb "system";
+  my $user          = $system_config->{user};
+
+  # will display the uptime of the remote server
+  say run "uptime";
+
+  # will test if your hostname.yml file is working correct. if you get your username everything works if not, you have to maybe change the filename to the correct hostname of your server
+  say "my username is: $user";
+
+
+
+};

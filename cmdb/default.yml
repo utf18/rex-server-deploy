@@ -1,0 +1,25 @@
+#authentication used for the default user which connects to the remote Server.
+#If another User should be Used, look into the servers.ini file
+auth:
+  user: root
+  private_key: ~/.ssh/id_rsa
+  public_key: ~/.ssh/id_rsa.pub
+  sudo: 1
+  key_auth: 1
+
+system:
+  packages:
+    - git
+    - perl
+    - zip
+    - unzip
+    - sshfs
+    - rsync
+    - sudo
+    - curl
+    - ufw
+    - htop
+    - iftop
+    - iotop
+    - apache2
+    - libapache2-mod-proxy-html

@@ -1,0 +1,30 @@
+# system related configs
+system:
+  # the user you will use for daily operations and is provided with access to docker (Pull|Start|Stop|delete etc..)
+  user: "foo"
+  # SSH Public key from your user that will be added to his authorized_keys file
+  sshKey: "insert your ssh pub key here"
+  # user Password you should specify at least 8 character for security reasons
+  pw: "my-secret-pw"
+  email: foo@example.com
+  # mount point to your docker media|log|config Files. All Data will live here.
+  # the specified user above will be granted access to this folder read/write.
+  baseDir: "/path/to/mount/for/data/files"
+  # the directory where let's encrypt will be installed to
+  letsencryptDir: "/opt/letsencrypt"
+
+# specify the domain(s) your applications will use either sub domain or not
+domain:
+  # the domain which will appear in the SSL Cert first
+  cert:     "foo.example.com"
+  # the domains for the docker Containers
+  owncloud: "owncloud.example.com"
+
+# settings for dockerized owncloud
+owncloud:
+  # specifies the Host directory inside of the "mount" directory
+  # this is where your data on the Host lives
+  hostData:   "owncloud_data"
+  contData:   "/var/www/html"
+  localPort:  "9090"
+  contPort:   "80"
