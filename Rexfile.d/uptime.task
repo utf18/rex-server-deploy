@@ -9,6 +9,4 @@ task "uptime", group => "rootserver", sub {
   # will test if your hostname.yml file is working correct. if you get your username everything works if not, you have to maybe change the filename to the correct hostname of your server
   say "my username is: $user";
 
-
-
 };

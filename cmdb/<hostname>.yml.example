@@ -24,7 +24,15 @@ domain:
 owncloud:
   # specifies the Host directory inside of the "mount" directory
   # this is where your data on the Host lives
+  contName:   "owncloud"
+  imgName:    "owncloud"
+  runParams:  "-p 127.0.0.1:9090:80 -v /opt/data/owncloud_data:/var/www/html"
   hostData:   "owncloud_data"
   contData:   "/var/www/html"
   localPort:  "9090"
   contPort:   "80"
+
+watchtower:
+  contName:   "watchtower"
+  imgName:    "centurylink/watchtower"
+  runParams:  "-v /var/run/docker.sock:/var/run/docker.sock"

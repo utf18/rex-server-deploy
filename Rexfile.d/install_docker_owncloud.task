@@ -3,7 +3,7 @@ task "install_docker_owncloud", group => "rootserver", sub {
 # load variables from cmdb
   my $system_config     = get cmdb "system";
   my $owncloud_config   = get cmdb "owncloud";
-  my $domain_config      = get cmdb "domain";
+  my $domain_config     = get cmdb "domain";
 
   my $baseDir           = $system_config->{baseDir};
   my $user              = $system_config->{user};
@@ -13,41 +13,43 @@ task "install_docker_owncloud", group => "rootserver", sub {
   my $contData          = $owncloud_config->{contData};
   my $localPort         = $owncloud_config->{localPort};
   my $contPort          = $owncloud_config->{contPort};
+  my $contName          = $owncloud_config->{contName};
+  my $imgName           = $owncloud_config->{imgName};
+  my $runParams         = $owncloud_config->{runParams};
 
   my $certDomain        = $domain_config->{certDomain};
   my $owncloud          = $domain_config->{owncloud};
 
   Rex::Logger::info("now we install and configure dockerized owncloud");
 
+
   #now we create the shared directory for the owncloud Data on the Host
   file "$baseDir/$hostData",
      ensure => "directory",
      owner  => "$user",
      group  => "docker",
-     mode   => 1777;
+     mode   => 1755;
 
-  #now we create the neccesary subfolder for the apache reverse config
-  #file "/var/www/html/$owncloud",
-  #  ensure => "directory",
-  #  owner  => "www-data",
-  #  group  => "www-data",
-
-  #now we create the neccesary subfolder for the apache reverse config
-  file "/var/www/$owncloud",
+  #now we create the neccesary subfolder for the nginx reverse config
+  file "/var/www/$owncloud/html",
     ensure => "directory",
-    owner  => "www-data",
-    group  => "www-data",
+    owner  => "nginx",
+    group  => "nginx",
 
 
-  Rex::Logger::info("now we start dockerized owncloud");
-  #now we run owncloud with exposed ports on localhost 9090 and with the configured shared directories
-  run "docker run --restart=always -d --name owncloud -p 127.0.0.1:$localPort:$contPort -v $baseDir/$hostData:$contData owncloud";
+  Rex::Logger::info("now we install the unit file for $contName");
+  file "/etc/systemd/system/${contName}.service",
+    content => template("files/container.service.tpl", "runParams" => $runParams, "contName" => $contName , "imgName" => $imgName);
 
-  Rex::Logger::info("now we place the owncloud conf file in the apache dir and after that enable it");
-  file "/etc/apache2/sites-available/owncloud.conf",
-    content => template("files/owncloud.conf.tpl", "localPort" => $localPort, "certDomain" => $certDomain, "owncloud" => $owncloud);
+  run "systemctl daemon-reload";
 
-  run "a2ensite owncloud.conf";
+  Rex::Logger::info("now we place the $contName conf file in the nginx dir and after that enable it");
+  file "/etc/nginx/sites-available/owncloud.conf",
+    content => template("files/vhost.conf.tpl", "localPort" => $localPort, "certDomain" => $certDomain, "vhost" => $owncloud);
+
+  symlink("/etc/nginx/sites-available/owncloud.conf", "/etc/nginx/sites-enabled/owncloud.conf");
+
+  service owncloud => "start";
 
 
 

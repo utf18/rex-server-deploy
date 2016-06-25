@@ -1,7 +1,24 @@
 task "install_docker_watchtower", group => "rootserver", sub {
 
-  Rex::Logger::info("now we start dockerized watchtower");
-  #now we run watchtower
-  run "docker run -d --name watchtower -v /var/run/docker.sock:/var/run/docker.sock centurylink/watchtower";
+  # load variables from cmdb
+    my $system_config     = get cmdb "system";
+    my $watchtower_config = get cmdb "watchtower";
+    my $domain_config     = get cmdb "domain";
+
+    my $baseDir           = $system_config->{baseDir};
+    my $user              = $system_config->{user};
+    my $dataDir           = $system_config->{dataDir};
+
+    my $contName          = $watchtower_config->{contName};
+    my $imgName           = $watchtower_config->{imgName};
+    my $runParams         = $watchtower_config->{runParams};
+
+
+
+  Rex::Logger::info("now we install the unit file for $contName");
+  file "/etc/systemd/system/${contName}.service",
+    content => template("files/container.service.tpl", "runParams" => $runParams, "contName" => $contName , "imgName" => $imgName);
+
+  run "systemctl daemon-reload";
 
 };

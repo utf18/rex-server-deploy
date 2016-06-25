@@ -12,14 +12,14 @@ system:
     - git
     - perl
     - zip
+    - vim
     - unzip
     - sshfs
     - rsync
     - sudo
     - curl
-    - ufw
     - htop
     - iftop
     - iotop
-    - apache2
-    - libapache2-mod-proxy-html
+    - nginx
+    - certbot

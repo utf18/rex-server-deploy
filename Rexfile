@@ -44,7 +44,7 @@ task "rollout",group => "rootserver", sub {
         "install_docker_watchtower",
 
         # finish the installation
-        "finish_installation",
+        "finish",
 
 
       ];

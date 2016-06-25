@@ -40,3 +40,4 @@ vars.db.lock
 .project
 tmp/
 lib
+*.secret

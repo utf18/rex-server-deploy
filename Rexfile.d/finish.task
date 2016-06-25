@@ -1,5 +1,5 @@
 # finish installation| do some neccesary things e.g cron
-task "finish_installation", group => "rootserver", sub {
+task "finish", group => "rootserver", sub {
 
   # load variables from cmdb
   my $system_config = get cmdb "system";
@@ -14,7 +14,5 @@ task "finish_installation", group => "rootserver", sub {
     minute    => "1",
     hour      => "23",
     user      => "$user";
-
-
-
+    
 };
