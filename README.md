@@ -16,7 +16,7 @@ It is based on perl and gives me the opportunity to have best of both worlds:
 My whole Setup makes use of this Software:
 - Rex from Rexify.org
 - Docker
-- CentOS 7 (if you want Debian switch to Branch Debian(i will push the recent changed into the Debian branch but CentOS will be the OS i will mainly use))
+- CentOS 7 \(if you want Debian switch to Branch Debian)
 - git
 - nginx
 - firewalld
