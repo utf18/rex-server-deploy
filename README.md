@@ -7,7 +7,7 @@ So i wanted to make sure i am able to redeploy my configuration at any time with
 
 
 In order to get this done i chose an easy and powerfull configuration management tool named: rex (see rexify.org)
-It is based on perl and gives me the opportunity to have best of both worlds:
+It is based on perl and gives me the opportunity to have the best of both worlds:
 
 1. easy to write and understand
 2. powerfull enough to do all the things i need
@@ -21,7 +21,7 @@ My whole Setup makes use of this Software:
 - nginx
 - firewalld
 - watchtower docker container to keep containers up to date (this is deprecated, i am trying to develop a nice solution to identify Container changes and rebuild my containers )
-- Certificates from Let's Encrypt with the certbot client
+- Certificates from Let's Encrypt with the certbot client (gets yourself a shiny a+ rating :D)
 
 ## **Requirements**
 
