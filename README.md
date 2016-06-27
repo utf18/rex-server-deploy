@@ -45,10 +45,7 @@ What you have to do in order to Use this:
 3. optional: verify everything is working as expected by starting rex with the parameter uptime. `rex uptime`
 it will connect to the destination server and returns the uptime of your server and if you get your username as a return then your hostname.yml file is correctly named.
 4. start rex with the parameter "rollout" `rex rollout` (it will install and configure your server the way you specified it)
-5. create lets's encrypt certificates: you have to do it manually since certbot is not working automatically at the moment.
-  - stop nginx \(if not already stopped) `systemctl stop nginx.service`
-  - run `certbot certonly` (and choose standalone version)
-  - run nginx again `systemctl start nginx.service`
+5. reboot your server
 6. configure the installed applications of your choice (change standard passwords etc...)
 
 ## **Documentation**
