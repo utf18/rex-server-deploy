@@ -2,6 +2,10 @@
  ssl_session_cache shared:SSL:50m;
  ssl_dhparam /etc/nginx/ssl/dhparam.pem;
  ssl_session_timeout 5m;
+ ssl_session_tickets off;
+ # ssl_session_tickets off; as long as there is no way to rotate the tickets i will turn this off!
+ # see https://tools.ietf.org/html/rfc5077#section-5.6
+ # see https://timtaubert.de/blog/2014/11/the-sad-state-of-server-side-tls-session-resumption-implementations/
  ssl_prefer_server_ciphers on;
  ssl_protocols TLSv1 TLSv1.1 TLSv1.2;
  # http://blog.ivanristic.com/2013/08/configuring-apache-nginx-and-openssl-for-forward-secrecy.html
