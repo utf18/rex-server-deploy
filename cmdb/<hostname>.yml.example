@@ -1,37 +1,27 @@
 # system related configs
 system:
-  # the user you will use for daily operations and is provided with access to docker (Pull|Start|Stop|delete etc..)
-  user: "foo"
-  # SSH Public key from your user that will be added to his authorized_keys file
-  sshKey: "insert your ssh pub key here"
-  # user Password you should specify at least 8 character for security reasons
-  pw: "my-secret-pw"
+  user: "foo" # the user you will use for daily operations and is provided with access to docker (Pull|Start|Stop|delete etc..)
+  sshKey: "insert your ssh pub key here" # SSH Public key from your user that will be added to his authorized_keys file
+  pw: "my-secret-pw" # user Password you should specify at least 8 character for security reasons
   email: foo@example.com
-  # mount point to your docker media|log|config Files. All Data will live here.
-  # the specified user above will be granted access to this folder read/write.
-  baseDir: "/path/to/mount/for/data/files"
-  # the directory where let's encrypt will be installed to
-  letsencryptDir: "/opt/letsencrypt"
+  baseDir: "/path/to/mount/for/data/files" # mount point to your docker media|log|config Files. All Data will live here. the specified user above will be granted access to this folder read/write.
+  dh_length: 2048 # if you don't know what you are doing please use the default. The length for the dh keys the longer value you choose time increases exponentially
 
 # specify the domain(s) your applications will use either sub domain or not
 domain:
-  # the domain which will appear in the SSL Cert first
-  cert:     "foo.example.com"
-  # the domains for the docker Containers
-  owncloud: "owncloud.example.com"
+  cert:     "foo.example.com" # the domain which will appear in the SSL Cert first
+  owncloud: "owncloud.example.com" # the domain for the docker Container owncloud
 
 # settings for dockerized owncloud
 owncloud:
-  # specifies the Host directory inside of the "mount" directory
-  # this is where your data on the Host lives
-  contName:   "owncloud"
-  imgName:    "owncloud"
-  runParams:  "-p 127.0.0.1:9090:80 -v /opt/data/owncloud_data:/var/www/html"
-  hostData:   "owncloud_data"
-  contData:   "/var/www/html"
-  localPort:  "9090"
-  contPort:   "80"
+  contName:   "owncloud" # the container will have this display name on docker ps
+  imgName:    "owncloud" # the image name that will be pulled
+  runParams:  "-p 127.0.0.1:9090:80 -v /opt/data/owncloud_data:/var/www/html"  # the params needed to start in correctly adjust if needed
+  hostData:   "owncloud_data" # the place where your data will live
+  contData:   "/var/www/html" # the place inside the container where the host mount will be mapped to
+  localPort:  "9090" # local Port which the container binds to on the host, is needed for the nginx vhost
 
+# settings for dockerized watchtower
 watchtower:
   contName:   "watchtower"
   imgName:    "centurylink/watchtower"

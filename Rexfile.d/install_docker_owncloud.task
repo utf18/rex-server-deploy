@@ -8,6 +8,7 @@ task "install_docker_owncloud", group => "rootserver", sub {
   my $baseDir           = $system_config->{baseDir};
   my $user              = $system_config->{user};
   my $dataDir           = $system_config->{dataDir};
+  my $email             = $system_config->{email};
 
   my $hostData          = $owncloud_config->{hostData};
   my $contData          = $owncloud_config->{contData};
@@ -20,37 +21,43 @@ task "install_docker_owncloud", group => "rootserver", sub {
   my $certDomain        = $domain_config->{certDomain};
   my $owncloud          = $domain_config->{owncloud};
 
-  Rex::Logger::info("now we install and configure dockerized owncloud");
+  Rex::Logger::info("install and configure dockerized owncloud");
 
 
-  #now we create the shared directory for the owncloud Data on the Host
+  # create the shared directory for the owncloud Data on the Host
   file "$baseDir/$hostData",
      ensure => "directory",
      owner  => "$user",
      group  => "docker",
      mode   => 1755;
 
-  #now we create the neccesary subfolder for the nginx reverse config
+  # create the neccesary subfolder for the nginx reverse config
   file "/var/www/$owncloud/html",
     ensure => "directory",
     owner  => "nginx",
     group  => "nginx",
 
 
-  Rex::Logger::info("now we install the unit file for $contName");
+  Rex::Logger::info("install the unit file for $contName");
   file "/etc/systemd/system/${contName}.service",
     content => template("files/container.service.tpl", "runParams" => $runParams, "contName" => $contName , "imgName" => $imgName);
 
   run "systemctl daemon-reload";
 
-  Rex::Logger::info("now we place the $contName conf file in the nginx dir and after that enable it");
+  Rex::Logger::info("enable $owncloud container");
+  run "systemctl enable owncloud";
+
+  Rex::Logger::info("place the $contName conf file in the nginx dir and after that enable it");
   file "/etc/nginx/sites-available/owncloud.conf",
     content => template("files/vhost.conf.tpl", "localPort" => $localPort, "certDomain" => $certDomain, "vhost" => $owncloud);
 
+  Rex::Logger::info("symlink for the owncloud config in /etc/nginx/sites-enabled");
   symlink("/etc/nginx/sites-available/owncloud.conf", "/etc/nginx/sites-enabled/owncloud.conf");
 
-  service owncloud => "start";
+  Rex::Logger::info("install the letsencrypt Cert for $owncloud");
+  run "certbot certonly --standalone -d $owncloud --email=$email --agree-tos --noninteractive";
 
-
+  Rex::Logger::info("copy the letsencrypt chain.pem to the nginx ssl dir in order to use it for OCSP Stapling");
+  cp("/etc/letsencrypt/archive/$owncloud/chain1.pem", "/etc/nginx/ssl/chain.pem");
 
 };

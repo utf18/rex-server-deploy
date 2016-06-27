@@ -6,9 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 Restart=always
-ExecStartPre=-/usr/bin/docker kill <%= $contName %>
-ExecStartPre=-/usr/bin/docker rm <%= $contName %>
-ExecStartPre=/usr/bin/docker pull <%= $contName %>
+ExecStartPre=/usr/bin/docker pull <%= $imgName %>
 ExecStart=/usr/bin/docker run --rm --name <%= $contName %> <%= $runParams %> <%= $imgName %>
 
 [Install]

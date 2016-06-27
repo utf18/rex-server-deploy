@@ -31,6 +31,7 @@ http {
     # See http://nginx.org/en/docs/ngx_core_module.html#include
     # for more information.
     include /etc/nginx/conf.d/*.conf;
+    include /etc/nginx/ssl/*.conf;
     include /etc/nginx/sites-enabled/*.conf;
 
 

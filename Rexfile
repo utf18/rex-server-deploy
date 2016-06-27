@@ -40,7 +40,7 @@ task "rollout",group => "rootserver", sub {
         # create the files and folder in order to run the application "owncloud" in docker
         "install_docker_owncloud",
 
-        # pull and run watchtower
+        # create the files and folder in order to run the application "watchtower" in docker
         "install_docker_watchtower",
 
         # finish the installation

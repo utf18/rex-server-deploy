@@ -7,10 +7,11 @@ task "configure", group => "rootserver", sub {
   my $pw            = $system_config->{pw};
   my $sshPubKey     = $system_config->{sshPubKey};
   my $baseDir       = $system_config->{baseDir};
+  my $dh_length     = $system_config->{dh_length};
 
 
   # disable password auth in ssh config
-  Rex::Logger::info("Hardening of sshd config -> forbid password authentication");
+  Rex::Logger::info("Harden ssh -> forbid password authentication and root login only with ssh key");
   delete_lines_matching "/etc/ssh/sshd_config" => "PasswordAuthentication";
   delete_lines_matching "/etc/ssh/sshd_config" => "PermitRootLogin";
   append_if_no_such_line "/etc/ssh/sshd_config", "PasswordAuthentication no";
@@ -20,9 +21,30 @@ task "configure", group => "rootserver", sub {
   Rex::Logger::info("restart the ssh service in order to reload sshd config");
   service sshd => "restart";
 
-  # add nginx sites-config to /etc/nginx/nginx.conf
-  Rex::Logger::info("add nginx sites-config to /etc/nginx/nginx.conf");
-  append_if_no_such_line "/etc/nginx/nginx.conf", "include /etc/nginx/sites-enabled/*.conf;";
+  Rex::Logger::info("start and enable docker");
+  service docker => "start";
+  run "systemctl enable docker";
+
+  Rex::Logger::info("start and enable the firewall");
+  service firewalld => "start";
+  run "systemctl enable firewalld";
+
+  Rex::Logger::info("open Ports 80 and 443 in the firewall");
+  # configure the firewall to allow http on port 80 besides port 433 for ssl
+  run "firewall-cmd --permanent --add-service=http";
+  run "firewall-cmd --permanent --add-service=https";
+
+  Rex::Logger::info("start and enable haveged for entropy generation");
+  service haveged => "start";
+  run "systemctl enable haveged";
+
+  Rex::Logger::info("add the nginx standard config");
+  file "/etc/nginx/nginx.conf",
+    content => template("files/nginx.conf.tpl");
+
+  Rex::Logger::info("add the nginx ssl config");
+  file "/etc/nginx/ssl/ssl_cert.conf",
+    content => template("files/ssl_cert.conf.tpl");
 
 
 

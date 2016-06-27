@@ -15,7 +15,7 @@ task "install_docker_watchtower", group => "rootserver", sub {
 
 
 
-  Rex::Logger::info("now we install the unit file for $contName");
+  Rex::Logger::info("install the unit file for $contName");
   file "/etc/systemd/system/${contName}.service",
     content => template("files/container.service.tpl", "runParams" => $runParams, "contName" => $contName , "imgName" => $imgName);
 

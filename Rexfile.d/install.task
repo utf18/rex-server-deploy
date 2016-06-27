@@ -18,24 +18,20 @@ task "install", group => "rootserver", sub {
   update_system;
 
   # install packages defined in default.yml add them to the hostname.yml file if you want host specific packages
-  Rex::Logger::info("system packages will be installed");
+  Rex::Logger::info("install system packages");
   for $package (values $system_config->{packages}) {
     pkg $package,
     ensure  => "present",
   }
 
 
-
-
   # install Docker from docker.com through their script
-  Rex::Logger::info("docker will be installed");
+  Rex::Logger::info("install docker");
   run "curl -fsSL https://get.docker.com/ | sh ";
-
-  service docker => "start";
 
 
   # create the User you want to use for daily business/ granted sudo permissions
-  Rex::Logger::info("now we create the User: $user");
+  Rex::Logger::info("create the User: $user");
   account "$user",
     ensure         => "present",
     home           => "/home/$user",
@@ -46,25 +42,23 @@ task "install", group => "rootserver", sub {
     ssh_key        => $sshPubKey;
 
   # create mount directory for docker data
-  Rex::Logger::info("now we create the mount point for the container files");
+  Rex::Logger::info("create the mount point for the container files");
   file "$baseDir",
      ensure => "directory",
      owner  => $user,
      group  => "docker",
      mode   => 1775;
 
-  #now we create the neccesary subfolder for nginx
+  #  create the neccesary subfolder for nginx
   file "/etc/nginx/sites-available",
     ensure => "directory",
 
-  #now we create the neccesary subfolder for nginx
+  #  create the neccesary subfolder for nginx
   file "/etc/nginx/sites-enabled",
     ensure => "directory",
 
-  Rex::Logger::info("now we add the nginx standard config");
-  file "/etc/nginx/nginx.conf",
-    content => template("files/nginx.conf.tpl");
-
-
+  #  create the neccesary subfolder for nginx SSL Settings
+  file "/etc/nginx/ssl",
+    ensure => "directory",
 
 };

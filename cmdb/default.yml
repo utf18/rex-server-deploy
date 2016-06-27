@@ -14,12 +14,9 @@ system:
     - zip
     - vim
     - unzip
-    - sshfs
-    - rsync
     - sudo
     - curl
-    - htop
-    - iftop
-    - iotop
     - nginx
     - certbot
+    - firewalld
+    - haveged

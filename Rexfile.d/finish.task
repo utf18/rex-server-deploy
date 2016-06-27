@@ -4,7 +4,7 @@ task "finish", group => "rootserver", sub {
   # load variables from cmdb
   my $system_config = get cmdb "system";
   my $user          = $system_config->{user};
-
+  my $dh_length     = $system_config->{dh_length};
 
   Rex::Logger::info("create the cron entry for letsencrypt");
   # create cron entry for letsencrypt renewal daily
@@ -14,5 +14,13 @@ task "finish", group => "rootserver", sub {
     minute    => "1",
     hour      => "23",
     user      => "$user";
-    
+
+  Rex::Logger::info("create dh keys, this will take a lot of time especially when you choose a value higher than 2048");
+  run "openssl dhparam -out '/etc/nginx/ssl/dhparam.pem' $dh_length";
+
+
+  Rex::Logger::info("start and enable nginx");
+  service nginx => "start";
+  run "systemctl enable nginx";
+
 };
