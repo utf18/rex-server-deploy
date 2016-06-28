@@ -34,6 +34,8 @@ task "configure", group => "rootserver", sub {
   run "firewall-cmd --permanent --add-service=http";
   run "firewall-cmd --permanent --add-service=https";
 
+  run "firewall-cmd --reload";
+
   Rex::Logger::info("start and enable haveged for entropy generation");
   service haveged => "start";
   run "systemctl enable haveged";
