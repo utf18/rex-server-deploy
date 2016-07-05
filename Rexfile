@@ -4,6 +4,7 @@ use Rex::Transaction;
 use Rex::Hardware;
 use Rex::Group::Lookup::INI;
 use Data::Dumper;
+use Rex::Commands::Gather
 
 # read the server.ini file and create the server groups
 groups_file "servers.ini";
@@ -38,10 +39,10 @@ task "rollout",group => "rootserver", sub {
         "configure",
 
         # create the files and folder in order to run the application "owncloud" in docker
-        "install_docker_owncloud",
+        "docker_owncloud",
 
         # create the files and folder in order to run the application "watchtower" in docker
-        "install_docker_watchtower",
+        "docker_watchtower",
 
         # finish the installation
         "finish",
