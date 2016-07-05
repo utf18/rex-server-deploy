@@ -2,28 +2,60 @@
 task "install", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_config = get cmdb "system";
+  my $system_conf   = get cmdb "system";
+  my $pkgs          = get cmdb "packages";
 
-  my $user          = $system_config->{user};
-  my $pw            = $system_config->{pw};
-  my $sshPubKey     = $system_config->{sshPubKey};
-  my $baseDir       = $system_config->{baseDir};
+  my $user          = $system_conf->{user};
+  my $pw            = $system_conf->{pw};
+  my $sshPubKey     = $system_conf->{sshPubKey};
+  my $baseDir       = $system_conf->{baseDir};
+
+  my $sudoGroup     = "";
 
 
-  # activate epel repo
-  pkg "epel-release",
-   ensure => "present";
+  if(is_redhat) {
+    # activate epel repo
+    pkg "epel-release",
+     ensure => "present";
+    # set sudo group to the right value for the OS
+    $sudoGroup="wheel";
+    }
+
+  if(is_debian) {
+    # add jessie backports repo because the certbot is only available in those
+    file "/etc/apt/sources.list.d/backports.list",
+    content => template("files/backports.list");
+    # set sudo group to the right value for the OS
+    $sudoGroup="sudo";
+  }
 
   # update the system in order to work with the epel repo
+  Rex::Logger::info("update the system after repo update");
   update_system;
 
   # install packages defined in default.yml add them to the hostname.yml file if you want host specific packages
   Rex::Logger::info("install system packages");
-  for $package (values $system_config->{packages}) {
-    pkg $package,
-    ensure  => "present",
-  }
+  pkg [ values $pkgs ],
+  ensure  => "present";
 
+  if(is_redhat) {
+    # install firewalld
+    install package => [
+                   "firewalld",
+                   "augeas",
+                   "certbot",
+                 ];
+    }
+
+  if(is_debian) {
+    # install ufw
+    install package => [
+                   "ufw",
+                   "augeas-tools",
+                 ];
+    Rex::Logger::info("install certbot");
+    run "apt-get install -y certbot -t jessie-backports";
+  }
 
   # install Docker from docker.com through their script
   Rex::Logger::info("install docker");
@@ -36,7 +68,7 @@ task "install", group => "rootserver", sub {
     ensure         => "present",
     home           => "/home/$user",
     comment        => "$user User Account",
-    groups         => [ 'users', 'docker', 'wheel' ],
+    groups         => [ 'users', 'docker', "$sudoGroup" ],
     password       => "$pw",
     create_home    => TRUE,
     ssh_key        => $sshPubKey;
@@ -49,16 +81,15 @@ task "install", group => "rootserver", sub {
      group  => "docker",
      mode   => 1775;
 
-  #  create the neccesary subfolder for nginx
-  file "/etc/nginx/sites-available",
-    ensure => "directory",
+     #  create the neccesary subfolder for nginx
+     file "/etc/nginx/sites-available",
+       ensure => "directory";
 
-  #  create the neccesary subfolder for nginx
-  file "/etc/nginx/sites-enabled",
-    ensure => "directory",
+     #  create the neccesary subfolder for nginx
+     file "/etc/nginx/sites-enabled",
+       ensure => "directory";
 
-  #  create the neccesary subfolder for nginx SSL Settings
-  file "/etc/nginx/ssl",
-    ensure => "directory",
-
+     #  create the neccesary subfolder for nginx SSL Settings
+     file "/etc/nginx/ssl",
+       ensure => "directory";
 };
