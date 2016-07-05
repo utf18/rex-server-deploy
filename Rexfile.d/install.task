@@ -31,6 +31,7 @@ task "install", group => "rootserver", sub {
 
   # update the system in order to work with the epel repo
   Rex::Logger::info("update the system after repo update");
+  update_package_db;
   update_system;
 
   # install packages defined in default.yml add them to the hostname.yml file if you want host specific packages
