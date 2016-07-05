@@ -11,22 +11,26 @@ task "configure", group => "rootserver", sub {
 
   my $sshDaemon     = "";
   my $fwDaemon      = "";
+  my $nginxUser     = "";
 
   if(is_redhat) {
     # set correct fw and ssh variables
     $sshDaemon      = "sshd";
     $fwDaemon       = "firewalld";
+    $nginxUser      = "nginx";
+
     }
 
   if(is_debian) {
     # set correct fw and ssh variables
     $sshDaemon      = "ssh";
     $fwDaemon       = "ufw";
+    $nginxUser      = "www-data";
   }
 
   # disable password auth in ssh config
   #TODO configure Augeas if less code is needed
-  Rex::Logger::info("Harden ssh -> forbid password authentication and root login only with ssh key");
+  Rex::Logger::info("Harden ssh -> forbid password authentication and allow root login only with ssh key");
   delete_lines_matching "/etc/ssh/sshd_config" => "PasswordAuthentication";
   delete_lines_matching "/etc/ssh/sshd_config" => "PermitRootLogin";
   append_if_no_such_line "/etc/ssh/sshd_config", "PasswordAuthentication no";
@@ -71,7 +75,7 @@ task "configure", group => "rootserver", sub {
 
   Rex::Logger::info("add the nginx standard config");
   file "/etc/nginx/nginx.conf",
-    content => template("files/nginx.conf.tpl");
+    content => template("files/nginx.conf.tpl", "nginxUser" => $nginxUser);
 
   Rex::Logger::info("add the nginx ssl config");
   file "/etc/nginx/ssl/ssl_cert.conf",
