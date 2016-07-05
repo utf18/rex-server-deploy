@@ -23,4 +23,6 @@ task "finish", group => "rootserver", sub {
   service nginx => "start";
   run "systemctl enable nginx";
 
+  Rex::Logger::info("please reboot the server i ran into issues in some cases, it is safe to reboot it, especially after system upgrades");
+
 };
