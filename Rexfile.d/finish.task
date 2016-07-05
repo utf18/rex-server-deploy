@@ -2,9 +2,9 @@
 task "finish", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_config = get cmdb "system";
-  my $user          = $system_config->{user};
-  my $dh_length     = $system_config->{dh_length};
+  my $system_conf   = get cmdb "system";
+  my $user          = $system_conf->{user};
+  my $dh_length     = $system_conf->{dh_length};
 
   Rex::Logger::info("create the cron entry for letsencrypt");
   # create cron entry for letsencrypt renewal daily
