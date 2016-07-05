@@ -1,6 +1,6 @@
 # **First of all what is this:**
 
-This project exists for the sole purpose of installing and configuring a linux server.
+This project exists for the sole purpose of installing and configuring a linux server the way i would install them manually.
 
 I am lazy and i hate writing cookbooks for applications and we all know we are bad at repetitive things.
 So i wanted to make sure i am able to redeploy my configuration at any time without hassle.
@@ -16,10 +16,10 @@ It is based on perl and gives me the opportunity to have the best of both worlds
 My whole Setup makes use of this Software:
 - Rex from Rexify.org
 - Docker
-- CentOS 7 \(if you want Debian switch to Branch Debian)
+- CentOS 7 or Debian 8 (only these two because SystemD is a hard Requirement)
 - git
 - nginx
-- firewalld
+- firewalld/ufw
 - watchtower docker container to keep containers up to date (this is deprecated, i am trying to develop a nice solution to identify Container changes and rebuild my containers )
 - Certificates from Let's Encrypt with the certbot client (gets yourself a shiny a+ rating :D)
 
@@ -28,10 +28,10 @@ My whole Setup makes use of this Software:
 What you have to do in order to Use this:
 - get yourself a rootserver from a provider of your choice.
   - you have to check whether the provider supports docker or not!
-  - you have to install a Distribution of RHEL/CentOS Linux on your own and make sure perl is installed (`yum install perl`).
+  - you have to install a Distribution of RHEL/CentOS/Debian Linux on your own and make sure perl is installed (`yum/apt-get install perl`).
   - you have to copy your SSH Public Key to the Server (authorized_keys of the User root)
-- install rex in at least version 1.3 on your local machine or the machine where you will trigger the deployment from
-- get yourself a domain and set the A-record to the IP of your server
+- install rex in the latest version (currently 1.4) on your local machine or the machine where you will trigger the deployment from
+- get yourself a domain and set the A-record for your (Sub)Domain to the IP of your server
 
 ## **Get it Started**
 
@@ -59,9 +59,9 @@ for the overall *big picture* see rexify.org and see how it is working under the
 
 nothing too fancy here ;)
 
-If you want to add more services just create another install_your-service-here.task file or copy an install_docker_*.task file and change the values
+If you want to add more services just create another install_your-service-here.task file or copy an docker_*.task file and change the values
 You have to secify the key/value pairs in the hostname.yml file if you need to use host specific variables. otherwise add them to your task file.
-After that you have to add the name to the Rexfile or call rex with the task Name: `rex install_your-service-here` and you're done :)
+After that you have to add the name to the Rexfile or call rex with the task Name: `rex your-service-here` and you're done :)
 
 
 i like to receive feedback and accept pull requests.
