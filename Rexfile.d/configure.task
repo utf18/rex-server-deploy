@@ -1,16 +1,31 @@
 task "configure", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_config = get cmdb "system";
+  my $system_conf   = get cmdb "system";
 
-  my $user          = $system_config->{user};
-  my $pw            = $system_config->{pw};
-  my $sshPubKey     = $system_config->{sshPubKey};
-  my $baseDir       = $system_config->{baseDir};
-  my $dh_length     = $system_config->{dh_length};
+  my $user          = $system_conf->{user};
+  my $pw            = $system_conf->{pw};
+  my $sshPubKey     = $system_conf->{sshPubKey};
+  my $baseDir       = $system_conf->{baseDir};
+  my $dh_length     = $system_conf->{dh_length};
 
+  my $sshDaemon     = "";
+  my $fwDaemon      = "";
+
+  if(is_redhat) {
+    # set correct fw and ssh variables
+    $sshDaemon      = "sshd";
+    $fwDaemon       = "firewalld";
+    }
+
+  if(is_debian) {
+    # set correct fw and ssh variables
+    $sshDaemon      = "ssh";
+    $fwDaemon       = "ufw";
+  }
 
   # disable password auth in ssh config
+  #TODO configure Augeas if less code is needed
   Rex::Logger::info("Harden ssh -> forbid password authentication and root login only with ssh key");
   delete_lines_matching "/etc/ssh/sshd_config" => "PasswordAuthentication";
   delete_lines_matching "/etc/ssh/sshd_config" => "PermitRootLogin";
@@ -19,22 +34,36 @@ task "configure", group => "rootserver", sub {
 
   # restart ssh services
   Rex::Logger::info("restart the ssh service in order to reload sshd config");
-  service sshd => "restart";
+  service $sshDaemon => "restart";
 
   Rex::Logger::info("start and enable docker");
   service docker => "start";
   run "systemctl enable docker";
 
   Rex::Logger::info("start and enable the firewall");
-  service firewalld => "start";
-  run "systemctl enable firewalld";
+  service $fwDaemon => "start";
+  run "systemctl enable $fwDaemon";
 
-  Rex::Logger::info("open Ports 80 and 443 in the firewall");
-  # configure the firewall to allow http on port 80 besides port 433 for ssl
-  run "firewall-cmd --permanent --add-service=http";
-  run "firewall-cmd --permanent --add-service=https";
+  if(is_redhat) {
+    # set fw rules
+    Rex::Logger::info("open Ports 80 and 443 in the firewall");
+    # configure the firewall to allow http on port 80 besides port 433 for ssl
+    run "firewall-cmd --permanent --add-service=http";
+    run "firewall-cmd --permanent --add-service=https";
+    run "firewall-cmd --reload";
+    }
 
-  run "firewall-cmd --reload";
+  if(is_debian) {
+    # set fw rules
+    #TODO configure internal ufw module if less code is needed
+    Rex::Logger::info("configure ufw");
+    run "ufw default deny incoming";
+    run "ufw default allow outgoing";
+    run "ufw allow 22/tcp";
+    run "ufw allow 80/tcp";
+    run "ufw allow 443/tcp";
+    run "ufw --force enable";
+  }
 
   Rex::Logger::info("start and enable haveged for entropy generation");
   service haveged => "start";
