@@ -1,25 +1,22 @@
-task "install_docker_owncloud", group => "rootserver", sub {
+task "docker_owncloud", group => "rootserver", sub {
 
 # load variables from cmdb
-  my $system_config     = get cmdb "system";
-  my $owncloud_config   = get cmdb "owncloud";
-  my $domain_config     = get cmdb "domain";
+  my $system_conf       = get cmdb "system";
+  my $owncloud_conf     = get cmdb "owncloud";
+  my $domain_conf       = get cmdb "domain";
 
-  my $baseDir           = $system_config->{baseDir};
-  my $user              = $system_config->{user};
-  my $dataDir           = $system_config->{dataDir};
-  my $email             = $system_config->{email};
+  my $baseDir           = $system_conf->{baseDir};
+  my $user              = $system_conf->{user};
+  my $dataDir           = $system_conf->{dataDir};
+  my $email             = $system_conf->{email};
 
-  my $hostData          = $owncloud_config->{hostData};
-  my $contData          = $owncloud_config->{contData};
-  my $localPort         = $owncloud_config->{localPort};
-  my $contPort          = $owncloud_config->{contPort};
-  my $contName          = $owncloud_config->{contName};
-  my $imgName           = $owncloud_config->{imgName};
-  my $runParams         = $owncloud_config->{runParams};
+  my $hostData          = $owncloud_conf->{hostData};
+  my $localPort         = $owncloud_conf->{localPort};
+  my $contName          = $owncloud_conf->{contName};
+  my $imgName           = $owncloud_conf->{imgName};
+  my $runParams         = $owncloud_conf->{runParams};
 
-  my $certDomain        = $domain_config->{certDomain};
-  my $owncloud          = $domain_config->{owncloud};
+  my $mydomain          = $domain_conf->{owncloud};
 
   Rex::Logger::info("install and configure dockerized owncloud");
 
@@ -32,10 +29,8 @@ task "install_docker_owncloud", group => "rootserver", sub {
      mode   => 1755;
 
   # create the neccesary subfolder for the nginx reverse config
-  file "/var/www/$owncloud/html",
+  file "/var/www/$mydomain/html",
     ensure => "directory",
-    owner  => "nginx",
-    group  => "nginx",
 
 
   Rex::Logger::info("install the unit file for $contName");
@@ -44,20 +39,24 @@ task "install_docker_owncloud", group => "rootserver", sub {
 
   run "systemctl daemon-reload";
 
-  Rex::Logger::info("enable $owncloud container");
+  Rex::Logger::info("enable $mydomain container");
   run "systemctl enable owncloud";
 
   Rex::Logger::info("place the $contName conf file in the nginx dir and after that enable it");
   file "/etc/nginx/sites-available/owncloud.conf",
-    content => template("files/vhost.conf.tpl", "localPort" => $localPort, "certDomain" => $certDomain, "vhost" => $owncloud);
+    content => template("files/vhost.conf.tpl", "localPort" => $localPort, "mydomain" => $mydomain);
 
   Rex::Logger::info("symlink for the owncloud config in /etc/nginx/sites-enabled");
   symlink("/etc/nginx/sites-available/owncloud.conf", "/etc/nginx/sites-enabled/owncloud.conf");
 
-  Rex::Logger::info("install the letsencrypt Cert for $owncloud");
-  run "certbot certonly --standalone -d $owncloud --email=$email --agree-tos --noninteractive";
+  Rex::Logger::info("stop nginx in order to create the certificates");
+  service nginx => "stop";
+
+  Rex::Logger::info("install the letsencrypt Cert for $mydomain");
+  run "certbot certonly --standalone -d $mydomain --email=$email --agree-tos --noninteractive";
 
   Rex::Logger::info("copy the letsencrypt chain.pem to the nginx ssl dir in order to use it for OCSP Stapling");
-  cp("/etc/letsencrypt/archive/$owncloud/chain1.pem", "/etc/nginx/ssl/chain.pem");
+  cp("/etc/letsencrypt/archive/$mydomain/chain1.pem", "/etc/nginx/ssl/chain.pem");
+
 
 };
