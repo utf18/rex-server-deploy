@@ -7,16 +7,14 @@ auth:
   sudo: 1
   key_auth: 1
 
-system:
-  packages:
-    - git
-    - perl
-    - zip
-    - vim
-    - unzip
-    - sudo
-    - curl
-    - nginx
-    - certbot
-    - firewalld
-    - haveged
+# these packages must be installed in order to get all things working do not change these if you want to add packages, add them to your hostname.yml file
+packages:
+  - git
+  - perl
+  - zip
+  - vim
+  - unzip
+  - sudo
+  - curl
+  - nginx
+  - haveged
