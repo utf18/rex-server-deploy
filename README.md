@@ -63,5 +63,6 @@ If you want to add more services just create another install_your-service-here.t
 You have to secify the key/value pairs in the hostname.yml file if you need to use host specific variables. otherwise add them to your task file.
 After that you have to add the name to the Rexfile or call rex with the task Name: `rex your-service-here` and you're done :)
 
+If you don't want for example the watchtower container to be installed just comment out `"docker_watchtower",` in the Rexfile.
 
 i like to receive feedback and accept pull requests.
