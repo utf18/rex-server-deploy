@@ -15,6 +15,16 @@ task "finish", group => "rootserver", sub {
     hour      => "23",
     user      => "$user";
 
+  Rex::Logger::info("create the cron entry for nightly docker pull");
+  # create cron entry for nightly docker pull
+  cron_entry "docker-pull",
+    ensure    => "present",
+    command   => "docker images | awk '(NR>1) && ($2!~/none/) {print $1":"$2}' | xargs -L1 docker pull",
+    minute    => "1",
+    hour      => "24",
+    user      => "$user";
+
+
   Rex::Logger::info("create dh keys, this will take a lot of time especially when you choose a value higher than 2048");
   run "openssl dhparam -out '/etc/nginx/ssl/dhparam.pem' $dh_length";
 
