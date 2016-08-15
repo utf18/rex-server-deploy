@@ -39,8 +39,8 @@ task "docker_owncloud", group => "rootserver", sub {
 
   run "systemctl daemon-reload";
 
-  Rex::Logger::info("enable $mydomain container");
-  run "systemctl enable owncloud";
+  Rex::Logger::info("enable $contName container");
+  run "systemctl enable $contName";
 
   Rex::Logger::info("place the $contName conf file in the nginx dir and after that enable it");
   file "/etc/nginx/sites-available/owncloud.conf",
@@ -53,7 +53,7 @@ task "docker_owncloud", group => "rootserver", sub {
   service nginx => "stop";
 
   Rex::Logger::info("install the letsencrypt Cert for $mydomain");
-  run "certbot certonly --standalone -d $mydomain --email=$email --agree-tos --noninteractive";
+  run "certbot certonly --standalone -d $mydomain --email=$email --agree-tos --noninteractive --rsa-key-size 4096";
 
   Rex::Logger::info("copy the letsencrypt chain.pem to the nginx ssl dir in order to use it for OCSP Stapling");
   cp("/etc/letsencrypt/archive/$mydomain/chain1.pem", "/etc/nginx/ssl/chain.pem");
