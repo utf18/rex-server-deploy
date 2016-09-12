@@ -25,7 +25,7 @@ services:
     volumes:
       - "owncloud_db:/var/lib/mysql"
     environment:
-      MYSQL_ROOT_PASSWORD: <%= $mySQLPw %>
+      MYSQL_ROOT_PASSWORD: "<%= $mySQLPw %>"
     restart: always
 
 volumes:
