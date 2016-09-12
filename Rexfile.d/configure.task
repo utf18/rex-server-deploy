@@ -1,17 +1,20 @@
 task "configure", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_conf   = get cmdb "system";
+  my $sys_conf      = get cmdb "system";
 
-  my $user          = $system_conf->{user};
-  my $pw            = $system_conf->{pw};
-  my $sshPubKey     = $system_conf->{sshPubKey};
-  my $baseDir       = $system_conf->{baseDir};
-  my $dh_length     = $system_conf->{dh_length};
+  my $user          = $sys_conf->{user};
+  my $pw            = $sys_conf->{pw};
+  my $sshPubKey     = $sys_conf->{sshPubKey};
+  my $baseDir       = $sys_conf->{baseDir};
+  my $dh_length     = $sys_conf->{dh_length};
 
   my $sshDaemon     = "";
   my $fwDaemon      = "";
   my $nginxUser     = "";
+
+  # get operating system string e.g ubuntu,debian,centos and convert to lower case
+  my $os            = lc(get_operating_system());
 
   if(is_redhat) {
     # set correct fw and ssh variables

@@ -8,7 +8,10 @@ system:
   pw: "my-secret-pw"
   email: foo@example.com
   # mount point to your docker media|log|config Files. All Data will live here. the specified user above will be granted access to this folder read/write.
-  baseDir: "/path/to/mount/for/data/files"
+  baseDir: "/opt/data"
+  composeDir: "/opt/compose"
+  # the directory where let's encrypt will be installed to
+  letsencryptDir: "/opt/letsencrypt"
   # if you don't know what you are doing please use the default. The length for the dh keys the longer value you choose time increases exponentially
   dh_length: 2048
 
@@ -29,15 +32,18 @@ owncloud:
   contName:   "owncloud"
   # the image name that will be pulled
   imgName:    "owncloud"
-  # the params needed to start in correctly adjust if needed
-  runParams:  "-p 127.0.0.1:9090:80 -v /opt/data/owncloud_data:/var/www/html"
    # the place where your data will live
   hostData:   "owncloud_data"
   # local Port which the container binds to on the host, is needed for the nginx vhost
-  localPort:  "9090"
+  localPort:  "9091"
 
-# settings for dockerized watchtower
-watchtower:
-  contName:   "watchtower"
-  imgName:    "centurylink/watchtower"
-  runParams:  "-v /var/run/docker.sock:/var/run/docker.sock"
+# settings for dockerized owncloud_mysql
+owncloud_mysql:
+  # the container will have this display name on docker ps
+  contName:   "owncloud_mysql"
+  # the image name that will be pulled
+  imgName:    "mysql"
+  # the params needed to start in correctly adjust if needed
+  MYSQL_ROOT_PASSWORD: "superSecretRootMYSQLPasswordCHANGEME!"
+   # the place where your data will live
+  hostData:   "owncloud_mysql_data"

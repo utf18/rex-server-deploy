@@ -1,10 +1,9 @@
-# finish installation| do some neccesary things e.g cron
 task "finish", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_conf   = get cmdb "system";
-  my $user          = $system_conf->{user};
-  my $dh_length     = $system_conf->{dh_length};
+  my $sys_conf      = get cmdb "system";
+  my $user          = $sys_conf->{user};
+  my $dh_length     = $sys_conf->{dh_length};
 
   Rex::Logger::info("create the cron entry for letsencrypt");
   # create cron entry for letsencrypt renewal daily
@@ -19,7 +18,7 @@ task "finish", group => "rootserver", sub {
   # create cron entry for nightly docker pull
   cron_entry "docker-pull",
     ensure    => "present",
-    command   => "docker images | awk '(NR>1) && ($2!~/none/) {print $1":"$2}' | xargs -L1 docker pull",
+		command   => q~docker images | awk '(NR>1) && ($2!\~/none/) {print $1":"$2}' | xargs -L1 docker pull~,
     minute    => "1",
     hour      => "24",
     user      => "$user";

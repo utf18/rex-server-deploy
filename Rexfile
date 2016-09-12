@@ -38,11 +38,8 @@ task "rollout",group => "rootserver", sub {
         # configure the system
         "configure",
 
-        # create the files and folder in order to run the application "owncloud" in docker
-        "docker_owncloud",
-
-        # create the files and folder in order to run the application "watchtower" in docker
-        "docker_watchtower",
+        # install the owncloud compose file
+        "compose_owncloud",
 
         # finish the installation
         "finish",

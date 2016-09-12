@@ -2,16 +2,19 @@
 task "install", group => "rootserver", sub {
 
   # load variables from cmdb
-  my $system_conf   = get cmdb "system";
+  my $sys_conf      = get cmdb "system";
   my $pkgs          = get cmdb "packages";
 
-  my $user          = $system_conf->{user};
-  my $pw            = $system_conf->{pw};
-  my $sshPubKey     = $system_conf->{sshPubKey};
-  my $baseDir       = $system_conf->{baseDir};
+  my $user          = $sys_conf->{user};
+  my $pw            = $sys_conf->{pw};
+  my $sshPubKey     = $sys_conf->{sshPubKey};
+  my $baseDir       = $sys_conf->{baseDir};
+  my $composeDir    = $sys_conf->{composeDir};
 
   my $sudoGroup     = "";
 
+  # get operating system string e.g ubuntu,debian,centos and convert to lower case
+  my $os            = lc(get_operating_system());
 
   if(is_redhat) {
     # activate epel repo
@@ -21,13 +24,11 @@ task "install", group => "rootserver", sub {
     $sudoGroup="wheel";
     }
 
-  if(is_debian) {
+  if($os eq "debian") {
     # add jessie backports repo because the certbot is only available in those
     file "/etc/apt/sources.list.d/backports.list",
     content => template("files/backports.list");
-    # set sudo group to the right value for the OS
-    $sudoGroup="sudo";
-  }
+    }
 
   # update the system in order to work with the epel repo
   Rex::Logger::info("update the system after repo update");
@@ -54,14 +55,28 @@ task "install", group => "rootserver", sub {
                    "ufw",
                    "augeas-tools",
                  ];
-    Rex::Logger::info("install certbot");
-    run "apt-get install -y certbot -t jessie-backports";
+    # set sudo group to the right value for the OS
+    $sudoGroup="sudo";
   }
+
+  if( $os eq "debian" ) {
+  Rex::Logger::info("install certbot from backports");
+  run "apt-get install -y certbot -t jessie-backports";
+  }
+
+  if( $os eq "ubuntu" ) {
+  Rex::Logger::info("install letsencrypt");
+  run "apt-get install -y letsencrypt";
+  }
+
 
   # install Docker from docker.com through their script
   Rex::Logger::info("install docker");
   run "curl -fsSL https://get.docker.com/ | sh ";
 
+  Rex::Logger::info("install docker-compose");
+  run "curl -L https://github.com/docker/compose/releases/download/1.8.0/docker-compose-`uname -s`-`uname -m` > /usr/local/bin/docker-compose";
+  run "chmod +x /usr/local/bin/docker-compose";
 
   # create the User you want to use for daily business/ granted sudo permissions
   Rex::Logger::info("create the User: $user");
@@ -82,15 +97,23 @@ task "install", group => "rootserver", sub {
      group  => "docker",
      mode   => 1775;
 
-     #  create the neccesary subfolder for nginx
-     file "/etc/nginx/sites-available",
-       ensure => "directory";
+  # create compose dir
+  Rex::Logger::info("create the compose files folder");
+  file "$composeDir",
+    ensure => "directory",
+    owner  => $user,
+    group  => "docker",
+    mode   => 1770;
 
-     #  create the neccesary subfolder for nginx
-     file "/etc/nginx/sites-enabled",
-       ensure => "directory";
+  #  create the neccesary subfolder for nginx
+  file "/etc/nginx/sites-available",
+   ensure => "directory";
 
-     #  create the neccesary subfolder for nginx SSL Settings
-     file "/etc/nginx/ssl",
-       ensure => "directory";
+  #  create the neccesary subfolder for nginx
+  file "/etc/nginx/sites-enabled",
+   ensure => "directory";
+
+  #  create the neccesary subfolder for nginx SSL Settings
+  file "/etc/nginx/ssl",
+   ensure => "directory";
 };
