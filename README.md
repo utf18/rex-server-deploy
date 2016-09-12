@@ -3,7 +3,7 @@
 This project exists for the sole purpose of installing and configuring a linux server the way i would install them manually.
 
 I am lazy and i hate writing cookbooks for applications and we all know we are bad at repetitive things.
-So i wanted to make sure i am able to redeploy my configuration at any time without hassle.
+So i wanted to make sure i am able to redeploy my configuration at any time.
 
 
 In order to get this done i chose an easy and powerfull configuration management tool named: rex (see rexify.org)
@@ -16,11 +16,9 @@ It is based on perl and gives me the opportunity to have the best of both worlds
 My whole Setup makes use of this Software:
 - Rex from Rexify.org
 - Docker
-- CentOS 7 or Debian 8 (only these two because SystemD is a hard Requirement)
-- git
+- CentOS 7 or Debian 8 or ubuntu 16.04 and up (sysemD needs to be present)
 - nginx
 - firewalld/ufw
-- watchtower docker container to keep containers up to date (this is deprecated, i am trying to develop a nice solution to identify Container changes and rebuild my containers )
 - Certificates from Let's Encrypt with the certbot client (gets yourself a shiny a+ rating :D)
 
 ## **Requirements**
@@ -53,16 +51,16 @@ it will connect to the destination server and returns the uptime of your server 
 for the overall *big picture* see rexify.org and see how it is working under the hood.
 
 **how the whole Setup works:**
-  applications such as owncloud are provided as docker containers and expose their ports locally on the host.
+  applications such as owncloud are provided as docker containers (and will be started with docker compose) and expose their ports locally on the host.
   the local firewall blocks all incoming traffic execpt 22 for SSH and 80,443 for the Web Server.
   The Web Server acts as a reverse proxy for the docker containers behind and does the SSL termination and hands out the let's encrypt certificates.
 
 nothing too fancy here ;)
 
 If you want to add more services just create another install_your-service-here.task file or copy an docker_*.task file and change the values
-You have to secify the key/value pairs in the hostname.yml file if you need to use host specific variables. otherwise add them to your task file.
+You have to specify the key/value pairs in the hostname.yml file if you need to use host specific variables. otherwise add them to your task file.
 After that you have to add the name to the Rexfile or call rex with the task Name: `rex your-service-here` and you're done :)
 
-If you don't want for example the watchtower container to be installed just comment out `"docker_watchtower",` in the Rexfile.
 
-i like to receive feedback and accept pull requests.
+
+fork me :)
