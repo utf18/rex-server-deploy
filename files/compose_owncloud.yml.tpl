@@ -29,8 +29,8 @@ services:
     restart: always
 
 volumes:
- owncloud_db:
- owncloud_data:
+  owncloud_db:
+  owncloud_data:
 
 networks:
   back:
