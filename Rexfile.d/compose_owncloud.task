@@ -22,7 +22,7 @@ task "compose_owncloud", group => "rootserver", sub {
   my $mySQLPw                 = $mySQL_conf->{MYSQL_ROOT_PASSWORD};
 
   # get operating system string e.g ubuntu,debian,centos and convert to lower case
-  my $os            = lc(get_operating_system());
+  my $os                      = lc(get_operating_system());
 
   # create the shared directory for the owncloud Data on the Host
   file "$baseDir/$hostData",
