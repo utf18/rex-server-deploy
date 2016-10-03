@@ -41,6 +41,12 @@ task "rollout",group => "rootserver", sub {
         # install the owncloud compose file
         "compose_owncloud",
 
+        # install the monitoring compose file
+        "compose_monitoring",
+
+        # install the jd2 compose file
+        "compose_jd2",
+
         # finish the installation
         "finish",
 
