@@ -61,6 +61,16 @@ If you want to add more services just create another install_your-service-here.t
 You have to specify the key/value pairs in the hostname.yml file if you need to use host specific variables. otherwise add them to your task file.
 After that you have to add the name to the Rexfile or call rex with the task Name: `rex your-service-here` and you're done :)
 
+tips and tricks:
+if you want to use redis in the owncloud setup with compose you might want to add this to your config.php
+it will enable redis as a memcache.
 
+'memcache.local' => '\\OC\\Memcache\\Redis',
+'redis' => array(
+      'host' => 'redis',
+      'port' => 6379,
+      'timeout' => 0.0,
+      'dbindex' => 0,
+),
 
 fork me :)

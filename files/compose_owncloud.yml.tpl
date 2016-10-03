@@ -28,9 +28,18 @@ services:
       MYSQL_ROOT_PASSWORD: "<%= $mySQLPw %>"
     restart: always
 
+  redis:
+    image: redis
+    container_name: redis
+    volumes:
+      - "redis_data:/data"
+    networks:
+      - back
+
 volumes:
   owncloud_db:
   owncloud_data:
+  redis_data:
 
 networks:
   back:
