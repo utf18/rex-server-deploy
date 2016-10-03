@@ -1,0 +1,83 @@
+task "compose_monitoring", group => "rootserver", sub {
+
+# load variables from cmdb
+  my $sys_conf                = get cmdb "system";
+  my $compose_conf            = get cmdb "grafana";
+  my $domain_conf             = get cmdb "domain";
+
+  my $baseDir                 = $sys_conf->{baseDir};
+  my $user                    = $sys_conf->{user};
+  my $dataDir                 = $sys_conf->{dataDir};
+  my $email                   = $sys_conf->{email};
+  my $composeDir              = $sys_conf->{composeDir};
+
+  my $hostData                = $compose_conf->{hostData};
+  my $localPort               = $compose_conf->{localPort};
+  my $contName                = $compose_conf->{contName};
+  my $imgName                 = $compose_conf->{imgName};
+  my $runParams               = $compose_conf->{runParams};
+
+  my $mydomain                = $domain_conf->{grafana};
+  my $grafanaAdminPW          = $compose_conf->{grafanaAdminPW};
+
+  # get operating system string e.g ubuntu,debian,centos and convert to lower case
+  my $os                      = lc(get_operating_system());
+
+  # create the shared directory for the Data on the Host
+  file "$baseDir/$hostData",
+     ensure => "directory",
+     owner  => "$user",
+     group  => "docker",
+     mode   => 1755;
+
+  # create the shared directory for the Data on the Host
+  file "$baseDir/prometheus",
+    ensure => "directory",
+    owner  => "$user",
+    group  => "docker",
+    mode   => 1755;
+
+  # create the folder for the compose dir
+  file "$composeDir/grafana",
+    ensure => "directory",
+    owner  => "$user",
+    group  => "docker",
+    mode   => 1750;
+
+  Rex::Logger::info("place compose file in the right directory");
+  file "$composeDir/grafana/docker-compose.yml",
+    content => template("files/compose_monitoring.yml.tpl", "localPort" => $localPort,"mySQLPw" => $mySQLPw, "mydomain" => $mydomain);
+
+  Rex::Logger::info("place the prometheus config file in the right directory");
+  file "$baseDir/prometheus/prometheus.yml",
+    content => template("files/prometheus.yml");
+
+  # create the neccesary subfolder for the nginx reverse config
+  file "/var/www/$mydomain/html",
+    ensure => "directory",
+
+
+  Rex::Logger::info("place the vhost file in the right directory");
+  file "/etc/nginx/sites-available/grafana.conf",
+    content => template("files/vhost.conf.tpl", "localPort" => $localPort, "mydomain" => $mydomain);
+
+  Rex::Logger::info("symlink for the vhost config in /etc/nginx/sites-enabled");
+  symlink("/etc/nginx/sites-available/grafana.conf", "/etc/nginx/sites-enabled/grafana.conf");
+
+  Rex::Logger::info("stop nginx in order to create the certificates");
+  service nginx => "stop";
+
+  if( $os eq "ubuntu" ) {
+    Rex::Logger::info("install the letsencrypt Cert for $mydomain");
+    run "letsencrypt certonly --standalone -d $mydomain --email=$email --agree-tos --noninteractive --rsa-key-size 4096";
+  }
+  else {
+    Rex::Logger::info("install the letsencrypt Cert for $mydomain");
+    run "certbot certonly --standalone -d $mydomain --email=$email --agree-tos --noninteractive --rsa-key-size 4096";
+  }
+
+  Rex::Logger::info("copy the letsencrypt chain.pem to the nginx ssl dir in order to use it for OCSP Stapling");
+  cp("/etc/letsencrypt/archive/$mydomain/chain1.pem", "/etc/nginx/ssl/chain.pem");
+
+
+};

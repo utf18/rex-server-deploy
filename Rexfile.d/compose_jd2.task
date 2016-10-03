@@ -1,0 +1,52 @@
+task "compose_jd2", group => "rootserver", sub {
+
+# load variables from cmdb
+  my $sys_conf                = get cmdb "system";
+  my $compose_conf            = get cmdb "jd2";
+
+  my $baseDir                 = $sys_conf->{baseDir};
+  my $mediaDir                = $sys_conf->{mediaDir};
+  my $user                    = $sys_conf->{user};
+  my $dataDir                 = $sys_conf->{dataDir};
+  my $composeDir              = $sys_conf->{composeDir};
+
+  my $hostData                = $compose_conf->{hostData};
+  my $contName                = $compose_conf->{contName};
+  my $imgName                 = $compose_conf->{imgName};
+
+  # get operating system string e.g ubuntu,debian,centos and convert to lower case
+  my $os                      = lc(get_operating_system());
+
+  # create the shared directory for the Data on the Host
+  file "$baseDir/$hostData",
+     ensure => "directory",
+     owner  => "$user",
+     group  => "docker",
+     mode   => 1755;
+
+  # create the shared directory for the download Data on the Host
+  file "$mediaDir",
+    ensure => "directory",
+    owner  => "$user",
+    group  => "docker",
+    mode   => 1755;
+
+  # create the shared directory for the download Data on the Host
+  file "$mediaDir/download",
+    ensure => "directory",
+    owner  => "$user",
+    group  => "docker",
+    mode   => 1755;
+
+  # create the folder for the compose dir
+  file "$composeDir/jd2",
+    ensure => "directory",
+    owner  => "$user",
+    group  => "docker",
+    mode   => 1750;
+
+  Rex::Logger::info("place compose file in the right directory");
+  file "$composeDir/jd2/docker-compose.yml",
+    content => template("files/compose_jd2.yml.tpl");
+
+};
