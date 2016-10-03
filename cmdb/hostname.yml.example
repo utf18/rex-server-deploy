@@ -9,6 +9,7 @@ system:
   email: foo@example.com
   # mount point to your docker media|log|config Files. All Data will live here. the specified user above will be granted access to this folder read/write.
   baseDir: "/opt/data"
+  mediaDir: "/opt/media"
   composeDir: "/opt/compose"
   # the directory where let's encrypt will be installed to
   letsencryptDir: "/opt/letsencrypt"

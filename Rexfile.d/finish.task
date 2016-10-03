@@ -5,14 +5,28 @@ task "finish", group => "rootserver", sub {
   my $user          = $sys_conf->{user};
   my $dh_length     = $sys_conf->{dh_length};
 
-  Rex::Logger::info("create the cron entry for letsencrypt");
-  # create cron entry for letsencrypt renewal daily
-  cron_entry "letsencrypt-renewal",
-    ensure    => "present",
-    command   => "certbot renewal",
-    minute    => "1",
-    hour      => "23",
-    user      => "$user";
+  my $os            = lc(get_operating_system());
+
+  if( $os eq "ubuntu" ) {
+    Rex::Logger::info("create the cron entry for letsencrypt");
+    # create cron entry for letsencrypt renewal daily
+    cron_entry "letsencrypt-renewal",
+      ensure    => "present",
+      command   => "certbot renewal",
+      minute    => "1",
+      hour      => "23",
+      user      => "$user";
+  }
+  else {
+    Rex::Logger::info("create the cron entry for letsencrypt");
+    # create cron entry for letsencrypt renewal daily
+    cron_entry "letsencrypt-renewal",
+      ensure    => "present",
+      command   => "certbot renewal",
+      minute    => "1",
+      hour      => "23",
+      user      => "$user";
+  }
 
   Rex::Logger::info("create the cron entry for nightly docker pull");
   # create cron entry for nightly docker pull
