@@ -31,7 +31,7 @@ What you have to do in order to Use this:
 - install rex in the latest version (currently 1.4) on your local machine or the machine where you will trigger the deployment from
 - get yourself a domain and set the A-record for your (Sub)Domain to the IP of your server
 
-## **Get it Started**
+## **Getting Started**
 
 1. clone this repo
 2. provide your configs:
@@ -73,4 +73,10 @@ it will enable redis as a memcache.
       'dbindex' => 0,
 ),
 
-fork me :)
+## Contributing
+
+1. Fork it
+2. Create your feature branch (`git checkout -b my-new-feature`)
+3. Commit your changes (`git commit -am 'Add some feature'`)
+4. Push to the branch (`git push origin my-new-feature`)
+5. Create new Pull Request

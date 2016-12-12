@@ -39,6 +39,13 @@ services:
       - "/var/lib/docker/:/var/lib/docker:ro"
     restart: always
 
+  nodeexporter:
+    image: prom/node-exporter
+    container_name: exporter
+    ports:
+      - "127.0.0.1:9100:9100"
+    restart: always
+
 volumes:
   prom_data:
   grafana:

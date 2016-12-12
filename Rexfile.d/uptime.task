@@ -1,9 +1,8 @@
 task "uptime", group => "rootserver", sub {
 
-  my $system_conf   = get cmdb "system";
-  my $test_conf     = get cmdb "test";
-  my $user          = $system_conf->{user};
-  my $user          = $system_conf->{user};
+  my $sys_conf      = get cmdb "system";
+  my $user          = $sys_conf->{user};
+
 
   # will display the uptime of the remote server
   say run "uptime";

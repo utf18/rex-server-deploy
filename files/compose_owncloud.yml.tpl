@@ -12,7 +12,7 @@ services:
     volumes:
       - "owncloud_data:/var/www/html"
       - "/opt/media:/opt/media_ro:ro"
-      - "/opt/data/download:/opt/download_ro:ro"
+      - "/opt/media/download:/opt/download_ro:ro"
     restart: always
     networks:
       - back
