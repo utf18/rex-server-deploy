@@ -16,7 +16,7 @@ It is based on perl and gives me the opportunity to have the best of both worlds
 My whole Setup makes use of this Software:
 - Rex from Rexify.org
 - Docker
-- CentOS 7 or Debian 8 or ubuntu 16.04 and up (sysemD needs to be present)
+- CentOS 7 or Debian 8 or ubuntu 16.04 and up (systemD needs to be present)
 - nginx
 - firewalld/ufw
 - Certificates from Let's Encrypt with the certbot client (gets yourself a shiny a+ rating :D)
